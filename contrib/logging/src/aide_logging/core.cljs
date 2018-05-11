@@ -1,8 +1,8 @@
 (ns aide-logging.core)
 
-(defn wrap
+(defn add
   "Will print all events to console using the specified prefix string."
-  ([object] (wrap object ""))
+  ([object] (add object ""))
   ([object prefix]
    (update object :aide.core/emit
            (fn wrap-emit

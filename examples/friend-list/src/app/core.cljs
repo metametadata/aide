@@ -41,20 +41,20 @@
                               :history history})
 
                 ; Persistence is added early because it changes the model
-                (aide-persistence/wrap {:storage      storage
+                (aide-persistence/add {:storage       storage
                                         :key          :friend-list
                                         :*model       *model
                                         :blacklist    -not-persisted-model-keys
                                         :load-wrapper -wrap-load-from-storage})
 
                 ; Routing events must fire after model is loaded from local storage
-                (aide-history/wrap {:history        history
+                (aide-history/add {:history         history
                                     :*model         *model
                                     :token-key-path [:token]
                                     :on-enter-event events/on-enter})
 
                 ; Logging must be last in order to catch all the events
-                aide-logging/wrap)
+                aide-logging/add)
 
         view-model (view-model/view-model (aide-reagent/atom->reaction *model))]
     (-> (view/view history)

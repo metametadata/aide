@@ -53,7 +53,7 @@
 
       (original-emit app event data))))
 
-(defn wrap
+(defn add
   "On start the middleware will load model from the specified storage.
   Saves model into storage on every change.
 

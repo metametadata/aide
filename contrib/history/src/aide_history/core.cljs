@@ -124,7 +124,7 @@
 
         (original-emit app event data)))))
 
-(defn wrap
+(defn add
   "Applies middleware which syncs app model with browser history.
 
   After start it begins catching history events and updates token in model accordingly.

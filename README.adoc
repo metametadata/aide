@@ -69,7 +69,7 @@ Middleware example:
 
 [source, clojure]
 ----
-(defn wrap-logging
+(defn add-logging
   "Will log all events."
   [object]
   (update app :aide.core/emit
@@ -81,7 +81,7 @@ Middleware example:
               (original-emit object event data)))))
 
 (def app-with-logging (-> app
-                          wrap-logging))
+                          add-logging))
 ----
 
 == Developer Guide
