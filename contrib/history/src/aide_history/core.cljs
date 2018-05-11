@@ -162,12 +162,19 @@
       (replace-token history token {:treat-as-browser-event? true})
       (push-token history token {:treat-as-browser-event? true}))))
 
+(defn link-attrs
+  "Returns Reagent attrs map ({:href ... :on-click ...}) for a link element which changes current URL without sending request to server.
+  Useful for cases when you can't put [[link]] into UI component which is already an <a> (e.g. react-bootstrap's NavItem)."
+  [history token {:keys [replace?] :as attrs}]
+  (-> attrs
+      (dissoc :replace?)
+      (merge {:href     (token->href history token)
+              :on-click #(-on-click % history token replace?)})))
+
 (defn link
   "Link Reagent component which changes current URL without sending request to server.
   Will replace current token instead of pushing if `:replace?` attribute is `true` (attribute is `false` by default).
-
-  If history middleware is added then clicking the link will produce `on-enter` event."
+  If history middleware is added then clicking the link will produce `on-enter` event.
+  Essentially, it's just an `<a>` with [[link-attrs]]."
   [history token {:keys [replace?] :as attrs} & body]
-  (into [:a (merge attrs {:href     (token->href history token)
-                          :on-click #(-on-click % history token replace?)})]
-        body))
+  (into [:a (link-attrs history token attrs)] body))
