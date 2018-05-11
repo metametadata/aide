@@ -1,0 +1,3 @@
+= aide-history
+
+Aide middleware which simplifies working with browser history.

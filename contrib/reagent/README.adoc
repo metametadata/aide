@@ -1,0 +1,4 @@
+= aide-reagent
+
+https://github.com/reagent-project/reagent[Reagent] bindings for Aide that
+enforce separation of view & view-model from app & model.

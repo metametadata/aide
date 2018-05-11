@@ -1,0 +1,21 @@
+@startuml
+'box "UI" #White
+	participant view
+	participant "view-model"
+'end box
+
+'box "App"  #White
+	participant app
+	participant "event handler"
+'end box
+
+participant model
+
+-> view : interaction
+view -> app : emit event
+app -> "event handler"
+"event handler" -> "event handler" : side effects
+"event handler" -> model : update
+model --> "view-model" : update
+"view-model" --> view : update
+@enduml

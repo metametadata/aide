@@ -1,0 +1,109 @@
+= Aide
+
+ClojureScript/Clojure event-driven application framework.
+Successor to https://github.com/metametadata/carry/[Carry].
+
+== Goals
+
+* Propose a pattern for SPAs (single app atom, view/view-model separation).
+* Framework core is agnostic to UI and model layers.
+* Events can be defined as vars so that IDE can jump to definition and
+compiler can detect undefined events.
+* Event definitions look similarly to `defn` so that IDE can highlight arguments, etc.
+* Events can be serialized/deserialized.
+* Events can be async.
+* Support injecting additional functionality via third-party packages
+(such as routing, logging, etc.).
+* Propose app lifecycle pattern (via standard start/stop events). This is needed for "stateful" third-party packages.
+* It is possible to implement time traveling debugger in the future.
+* Extensible.
+* Testable.
+
+== Status
+
+WIP.
+
+== Code Examples
+
+Define an app which has some model:
+
+[source, clojure]
+....
+(ns app.core
+  (:require [aide.core :as aide]))
+
+(let [*model (atom {:val 0})
+      app (aide/object {:*model *model})]
+  ,,,)
+....
+
+Define an event which modifies the app model:
+
+[source, clojure]
+....
+(aide/defevent on-increment
+  [app _data]
+  (swap! (:*model app) update :val inc))
+....
+
+Define an event which emits another event asynchronously:
+
+[source, clojure]
+....
+(aide/defevent on-delayed-increment
+  [app delay-ms]
+  (.setTimeout js/window #(aide/emit app on-increment) delay-ms))
+....
+
+Emit events into the app:
+
+[source, clojure]
+....
+(aide/emit app aide-lifecycle/on-start)
+(aide/emit app on-increment)
+(aide/emit app on-delayed-increment 1000)
+(aide/emit app aide-lifecycle/on-stop)
+....
+
+Middleware example:
+
+[source, clojure]
+----
+(defn wrap-logging
+  "Will log all events."
+  [object]
+  (update app :aide.core/emit
+          (fn wrap-emit
+            [original-emit]
+            (fn emit
+              [object event data]
+              (println (str event) (pr-str data))
+              (original-emit object event data)))))
+
+(def app-with-logging (-> app
+                          wrap-logging))
+----
+
+== Developer Guide
+
+=== Tests (Clojure)
+
+Run tests once: `lein test` or `lein test-refresh :run-once`
+
+Autorun tests: `lein test-refresh`
+
+=== Tests (ClojureScript)
+
+To run tests once:
+
+  lein doo phantom test once
+
+or automatically re-run on code changes:
+
+  lein doo phantom test auto
+
+== License
+
+Copyright © 2018 Yuri Govorushchenko.
+
+Released under an MIT license.

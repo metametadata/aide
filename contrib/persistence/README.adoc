@@ -1,0 +1,5 @@
+= aide-persistence
+
+Naive Aide middleware for automatic model saving/loading using browser storage.
+
+Will save model on every change which can be a significant performance hit.

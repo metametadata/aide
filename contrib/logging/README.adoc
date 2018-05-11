@@ -1,0 +1,3 @@
+= aide-logging
+
+Console logging middleware for Aide.
