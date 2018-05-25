@@ -10,10 +10,10 @@
   "Object managing browser history."
   (listen [this callback]
           "Starts calling back on history events.
-          Callback function signature: `[token browser-event? event-data]`, where:
+          Callback function signature: `[token navigation? event-data]`, where:
 
           * `token` - new token
-          * `browser-event?` - `true` if event was initiated by action in browser, e.g. clicking Back button
+          * `navigation?` - `true` if event was initiated by action in browser, e.g. clicking Back button
           * `event-data` - data which was passed from `replace-token`/`push-token`
 
           Returns a function which stops listening.")
@@ -82,12 +82,13 @@
 ; Middleware
 (aide/defevent ^:no-doc -on-history-event
   "Extracted as event for easier debugging."
-  [{:keys [::-*model ::-token-key-path ::-on-enter-event] :as app} {:keys [token browser-event? event-data]}]
+  [{:keys [::-*model ::-token-key-path ::-on-enter-event] :as app} {:keys [token navigation? event-data]}]
   (swap! -*model assoc-in -token-key-path token)
 
-  (when (and (or browser-event? (:treat-as-browser-event? event-data))
-             (some? -on-enter-event))
-    (aide/emit app -on-enter-event token)))
+  (when (and (some? -on-enter-event)
+             (not (:bypass-on-enter-event? event-data)))
+    (aide/emit app -on-enter-event {:token       token
+                                    :navigation? navigation?})))
 
 (defn ^:no-doc -wrap-emit
   [original-emit history *model token-key-path]
@@ -106,10 +107,14 @@
                            (replace-token history new-token)))))
 
           (reset! *unlisten
-                  (listen history #(aide/emit app -on-history-event {:token %1 :browser-event? %2 :event-data %3})))
+                  (listen history #(aide/emit app -on-history-event {:token       %1
+                                                                     :navigation? %2
+                                                                     :event-data  %3})))
 
           ; Initial event
-          (aide/emit app -on-history-event {:token (token history) :browser-event? true :event-data nil})
+          (aide/emit app -on-history-event {:token       (token history)
+                                            :navigation? false
+                                            :event-data  nil})
 
           original-emit-result)
 
@@ -130,9 +135,12 @@
   After start it begins catching history events and updates token in model accordingly.
   If token changes in model then current url is replaced using the new token.
 
-  Optional `[on-enter-event token]` is emitted after token change initiated from browser (e.g. on clicking Back button).
-  Using [[HistoryProtocol]]'s `replace-token`/`push-token` does not trigger this event.
-  You can still force sending this event by passing `{:treat-as-browser-event? true}` event-data to these methods."
+  Optional `[on-enter-event {:token :navigation?}]` is emitted on every token change.
+  navigation? flag is set to true only if event was triggered by browser navigation (e.g. clicking Back button).
+  You can also force not emitting on-enter-event by by passing `{:bypass-on-enter-event? true}`
+  to [[HistoryProtocol]]'s `replace-token`/`push-token` methods.
+
+  Initial on-enter-event is emitted with navigation? set to false."
   [app {:keys [history *model token-key-path on-enter-event]
         :or   {on-enter-event nil}}]
   {:pre [(satisfies? History history) (some? *model) (some? token-key-path)]}
@@ -159,8 +167,8 @@
   (when (-pure-click? e)
     (.preventDefault e)
     (if replace?
-      (replace-token history token {:treat-as-browser-event? true})
-      (push-token history token {:treat-as-browser-event? true}))))
+      (replace-token history token)
+      (push-token history token))))
 
 (defn link-attrs
   "Returns Reagent attrs map ({:href ... :on-click ...}) for a link element which changes current URL without sending request to server.
@@ -174,7 +182,7 @@
 (defn link
   "Link Reagent component which changes current URL without sending request to server.
   Will replace current token instead of pushing if `:replace?` attribute is `true` (attribute is `false` by default).
-  If history middleware is added then clicking the link will produce `on-enter` event.
+  If history middleware is added then clicking the link will produce `on-enter` event with navigation? set to false.
   Essentially, it's just an `<a>` with [[link-attrs]]."
   [history token {:keys [replace?] :as attrs} & body]
   (into [:a (link-attrs history token attrs)] body))

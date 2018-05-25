@@ -16,15 +16,14 @@
   (api/search q #(aide/emit app on-search-success [q %])))
 
 (aide/defevent on-enter
-  [app token]
+  [app {:keys [token]}]
   (swap! (:*model app) assoc :query token)
   (-search app token))
 
 (def -search-on-input
   (goog-functions/debounce
     (fn [app q]
-      ; Note that this will not trigger on-enter event
-      (aide-history/push-token (:history app) q)
+      (aide-history/push-token (:history app) q {:bypass-on-enter-event? true})
       (-search app q))
     300))
 
