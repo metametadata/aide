@@ -2,9 +2,7 @@
   (:require [aide.event-api :as event-api]
             [aide.var-event :as var-event])
   #?(:cljs (:require-macros
-             [aide.core :refer
-              [defevent*
-               defevent]])))
+             [aide.core])))
 
 (defn emit
   "Emits the event into the specified object. Returns the event handling result (depends on the object and/or event).
