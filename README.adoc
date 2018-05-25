@@ -3,6 +3,9 @@
 ClojureScript/Clojure event-driven application framework.
 Successor to https://github.com/metametadata/carry/[Carry].
 
+[link=https://clojars.org/aide]
+image::https://img.shields.io/clojars/v/aide.svg[Clojars Project]
+
 == Goals
 
 * Propose a pattern for SPAs (single app atom, view/view-model separation).
