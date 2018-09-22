@@ -10,7 +10,7 @@ image::https://img.shields.io/clojars/v/aide.svg[Clojars Project]
 
 * Carry framework is very strict about separating signals (side effects) and actions (model changing functions). In a long run it turned out to produce a lot of boilerplate (e.g. many signal handlers are anemic and only dispatch an action). Such separation was mainly needed for implementing Redux-ish time traveling debugger, but in the end I don't find such tool too useful, it's pretty easy to debug the app using traditional approaches.
 
-* By default Carry recommends using keywords for events and actions. It makes it cumbersome to maintain the codebase, because IDE doesn't understand this abstraction.
+* By default Carry recommends using keywords for events and actions. It makes it cumbersome to maintain the codebase, because IDEs don't understand this abstraction.
 
 == Why not re-frame?
 
