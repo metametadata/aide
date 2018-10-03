@@ -29,7 +29,7 @@ Also it's based on patterns which are too heavyweight:
 compiler can detect undefined events).
 * Event definitions look similarly to `defn` (so that IDE can highlight arguments, etc.).
 * Events can be async.
-* Events can be serialized/deserialized.
+* Events can be serialized/deserialized. E.g. it's possbile to record and replay user's actions.
 * No enforced separation between "side-effectful" and "pure" events.
 * Testable. It's possible to test event handlers similarly to usual functions and also mock the events.
 * Supports injecting additional functionality via third-party packages
@@ -104,7 +104,7 @@ Middleware example:
                           add-logging))
 ----
 
-== Intagration with Reagent
+== Integration with Reagent
 
 See https://github.com/metametadata/aide/tree/master/examples.
 
